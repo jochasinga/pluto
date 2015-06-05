@@ -32,6 +32,25 @@ class ArduinoUtil(object):
                 board.digital[pin].write(LOW)
                 time.sleep(1)
 
+class Led(Pin):
+    """Led representation"""    
+    def __init__(self, board, pin_number=13, type=ANALOG, port=None):
+        super(Led, self).__init__(board, pin_number, type, port)
+
+    def on(self):
+        self.board.digitalWrite(self.pin_number, HIGH)
+    
+    def off(self):
+        self.board.digitalWrite(self.pin_number, LOW)
+
+    def blink(self, interval=1, forever=True):
+        if forever:
+            while True:
+                self.board.digitalWrite(self.pin_number, HIGH)
+                time.sleep(interval)
+                self.board.digitalWrite(self.pin_number, LOW)
+                time.sleep(interval)
+
 # wrapper classes
 class Uno(Board):
     """
@@ -39,8 +58,9 @@ class Uno(Board):
     """
     def __init__(self, *args, **kwargs):
         super(Uno, self).__init__(*args, **kwargs)
+        self.name = 'arduino_uno'
         self.util = ArduinoUtil()
-        self.led = Led()
+        # self.led = Led(self)
 
     def digitalWrite(self, pin, value):
         self.util.digitalWrite(self, pin, value)
