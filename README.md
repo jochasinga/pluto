@@ -1,5 +1,3 @@
-pluto
-=====
-
-pluto is a Python interface wrapped around `pyFirmata`
+# pluto
+The One and Only Python Arduino Framework
 
