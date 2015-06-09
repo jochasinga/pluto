@@ -1,6 +1,8 @@
 from pyfirmata import *
 from boards import BOARDS
-import time
+import pyfirmata
+# import time
+import gevent
 
 __version__ = '0.1.0'
 
@@ -14,27 +16,27 @@ class ArduinoUtil(object):
     A utility class containing all the Arduino-esque functions
     """
     @staticmethod
-    def digitalWrite(board, pin, value):
+    def digitalWrite(board, pin_number, value):
         if isinstance(board, Board):
-            board.digital[pin].write(value)
+            board.digital[pin_number].write(value)
 
     @staticmethod
-    def digitalRead(board, pin, value):
+    def digitalRead(board, pin_number, value):
         if isinstance(board, Board):
-            board.digital[pin].read()
+            board.digital[pin_number].read()
 
     @staticmethod
-    def blinkLED(board, pin=13, interval=1):
+    def blinkLED(board, pin_number=LED_BUILTIN, interval=1):
         if isinstance(board, Board):
             while True:
-                board.digital[pin].write(HIGH)
-                time.sleep(1)
-                board.digital[pin].write(LOW)
-                time.sleep(1)
+                board.digital[pin_number].write(HIGH)
+                gevent.sleep(1)
+                board.digital[pin_number].write(LOW)
+                gevent.sleep(1)
 
 class Led(Pin):
     """Led representation"""    
-    def __init__(self, board, pin_number=13, type=ANALOG, port=None):
+    def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Led, self).__init__(board, pin_number, type, port)
 
     def on(self):
@@ -47,9 +49,35 @@ class Led(Pin):
         if forever:
             while True:
                 self.board.digitalWrite(self.pin_number, HIGH)
-                time.sleep(interval)
+                gevent.sleep(interval)
                 self.board.digitalWrite(self.pin_number, LOW)
-                time.sleep(interval)
+                gevent.sleep(interval)
+
+
+class Pin(pyfirmata.Pin):
+    """Pluto's Pin representation"""
+    def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
+        super(Pin, self).__init__(board, pin_number, type, port)
+        self.util = ArduinoUtil()
+
+    def digitalWrite(self, *args, **kwargs):
+
+        for index, val in enumerate(args):
+            if index == 0:
+                self.pin_number = val
+            elif index == 1:
+                self.value = val
+
+        if kwargs is not None:
+            for key, val in kwargs.iteritems():
+                if key == "pin_number":
+                    self.pin_number = val
+                elif key == "value":
+                    self.value = val
+                else:
+                    pass
+
+        self.util.digitalWrite(self.board, self.pin_number, self.value)
 
 # wrapper classes
 class Uno(Board):
@@ -60,15 +88,16 @@ class Uno(Board):
         super(Uno, self).__init__(*args, **kwargs)
         self.name = 'arduino_uno'
         self.util = ArduinoUtil()
-        # self.led = Led(self)
+        self.led = Led(self)
+        self.pin = Pin(self)
 
-    def digitalWrite(self, pin, value):
-        self.util.digitalWrite(self, pin, value)
+    def digitalWrite(self, pin_number, value):
+        self.util.digitalWrite(self, pin_number, value)
 
     def digitalRead(self):
         self.util.digitalRead(self)
 
-    def blinkLED(self, pin=13, interval=1):
+    def blinkLED(self, pin_number=13, interval=1):
         self.util.blinkLED(self)
 
     def __str__(self):
@@ -80,6 +109,8 @@ class Mega(Board):
     """
     def __init__(self, *args, **kwargs):
         super(Mega, self).__init__(*args, **kwargs)
+        self.util = ArduinoUtil()
+        self.led = Led(self)
 
     def __str__(self):
         super(Mega, self).__str__()
@@ -90,6 +121,8 @@ class SparkCore(Board):
     """
     def __init__(self, *args, **kwargs):
         super(SparkCore, self).__init__(*args, **kwargs)
+        self.util = ArduinoUtil()
+        self.led = Led(self)
 
 class Lilypad(Board):
     """
@@ -100,6 +133,8 @@ class Lilypad(Board):
         args.append(BOARDS['arduino_lilypad'])
         super(Lilypad, self).__init__(*args, **kwargs)
         self.name = 'arduino_lilypad'
+        self.util = ArduinoUtil()
+        self.led = Led(self)
 
         
         
