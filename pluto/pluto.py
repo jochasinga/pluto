@@ -1,6 +1,6 @@
 from pyfirmata import *
 from boards import BOARDS
-from ports import *
+from ports import PortUtil
 import gevent
 
 __version__ = '0.1.0'
@@ -35,7 +35,8 @@ class ArduinoUtil(object):
 
 class Board(pyfirmata.Board):
     """The Base class for any board."""
-    def __init__(self, port=None, layout=None, baudrate=57600, name=None, timeout=None):
+    # TODO: auto-scan for type of board
+    def __init__(self, port=None, layout=BOARDS['arduino'], baudrate=57600, name=None, timeout=None):
         self.util = ArduinoUtil()
         self.led = Led(self)
         self.pin = Pin(self)
@@ -129,7 +130,7 @@ class Uno(Board):
     """
     def __init__(self, *args, **kwargs):
         super(Uno, self).__init__(*args, **kwargs)
-        self.name = 'arduino_uno'
+        self.name = 'arduino'
 
     def __str__(self):
         super(Uno, self).__str__()
@@ -139,9 +140,9 @@ class Mega(Board):
     A board that will set itself up as an ArduinoMega
     """
     def __init__(self, *args, **kwargs):
+        args = list(args)
+        args.append(BOARDS['arduino_mega'])
         super(Mega, self).__init__(*args, **kwargs)
-        self.util = ArduinoUtil()
-        self.led = Led(self)
 
     def __str__(self):
         super(Mega, self).__str__()
