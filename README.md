@@ -32,8 +32,8 @@ Examples
 Control on-board LED
 --------------------
 
-    >>> import pluto 
-    >>> board = pluto.Uno('/dev/cu.usbmodem1411')
+    >>> from pluto *
+    >>> board = Uno('/dev/cu.usbmodem1411')
     >>> board.led.on()
     >>> board.led.off()
 
@@ -43,17 +43,23 @@ Control on-board LED
 
 This makes it possible to create an instance of the board without explicitly providing the port name.
 
-    >>> board = pluto.Board()
-    >>> board.led.blink()
+    >>> board = Board()
+
+However, to control an on-board LED on an anonymous board, you should provide an a pin number for the first time:
+
+    >>> board.led(9).on() # This board has a built-in LED on pin 9
+    >>> board.led.off()   # After that it is not necessary anymore
+    
 
 One can also create Led instances
 
-    >>> led = pluto.Led(board)
+    >>> led = Led(board)
     >>> led.on()
+    >>> led.off()
 
 `ArduinoUtil` is instantiated with the board so Arduino C-style APIs can be used.
 
-    >>> board = pluto.Board()
+    >>> board = Board()
     >>> board.digitalWrite(13, HIGH)
     >>> board.digitalWrite(13, LOW)
 
