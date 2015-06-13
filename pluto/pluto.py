@@ -15,8 +15,26 @@ class Board(pyfirmata.Board):
     """The Base class for any board."""
     # TODO: auto-scan for type of board
     def __init__(self, port=None, layout=BOARDS['arduino'], baudrate=57600, name=None, timeout=None):
-        self.util = ArduinoUtil()
-        self.led = Led(self)
+        # Arduino boards with on-board digital LED @ pin 13
+        default_leds = [
+            'arduino',
+            'arduino_leonardo',
+            'arduino_mega',
+            'arduino_due',
+            'arduino_yun',
+            'arduino_zero',
+            'arduino_micro',
+            'arduino_lilypad_usb',
+        ]
+
+        def led_hook(pin_number):
+            led = Led(self, pin_number)
+            self.led = led
+            return led
+        
+        self.name = name
+        self.util = ArduinoUtil()                
+        self.led = Led(self) if self.name in default_leds else (lambda pin: led_hook(pin))
         self.pin = Pin(self)
         auto_port = PortUtil.scan()
         self.sp = serial.Serial(auto_port, baudrate, timeout=timeout)
@@ -25,7 +43,6 @@ class Board(pyfirmata.Board):
         # For 2.3, even 5 seconds might not be enough.
         # TODO Find a more reliable way to wait until the board is ready
         self.pass_time(BOARD_SETUP_WAIT_TIME)
-        self.name = name
         self._layout = layout
         if not self.name:
             self.name = port
@@ -101,6 +118,11 @@ class Led(Pin):
                 gevent.sleep(interval)
                 self.board.digitalWrite(self.pin_number, LOW)
                 gevent.sleep(interval)
+
+    def strobe(self, interval=1, forever=True):
+        if forever:
+            while True:
+                pass 
 
 class Uno(Board):
     """
