@@ -1,6 +1,6 @@
 pluto
 =====
-The one and only Arduino framework in Python. It is built on top of [pyFirmata](https://github.com/tino/pyFirmata).
+The Python Arduino framework built on top of [pyFirmata](https://github.com/tino/pyFirmata).
 
 Intention
 =========
@@ -17,7 +17,7 @@ Installation
 
 ```bash
 
-git lcone https://github.com/jochasinga/pluto
+git clone https://github.com/jochasinga/pluto
 cd pluto
 python setup.py install
 
@@ -32,7 +32,7 @@ Examples
 Control on-board LED
 --------------------
 
-    >>> import pluto
+    >>> import pluto 
     >>> board = pluto.Uno('/dev/cu.usbmodem1411')
     >>> board.led.on()
     >>> board.led.off()
@@ -45,6 +45,11 @@ This makes it possible to create an instance of the board without explicitly pro
 
     >>> board = pluto.Board()
     >>> board.led.blink()
+
+One can also create Led instances
+
+    >>> led = pluto.Led(board)
+    >>> led.on()
 
 `ArduinoUtil` is instantiated with the board so Arduino C-style APIs can be used.
 
