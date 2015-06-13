@@ -1,6 +1,5 @@
 from pyfirmata import *
 from boards import BOARDS
-from ports import PortUtil
 import gevent
 
 __version__ = '0.1.0'
@@ -10,28 +9,7 @@ LOW = 0
 HIGH = 1
 LED_BUILTIN = 13
 
-class ArduinoUtil(object):
-    """
-    A utility class containing all the Arduino-esque functions
-    """
-    @staticmethod
-    def digitalWrite(board, pin_number, value):
-        if isinstance(board, Board):
-            board.digital[pin_number].write(value)
-
-    @staticmethod
-    def digitalRead(board, pin_number, value):
-        if isinstance(board, Board):
-            board.digital[pin_number].read()
-
-    @staticmethod
-    def blinkLED(board, pin_number=LED_BUILTIN, interval=1):
-        if isinstance(board, Board):
-            while True:
-                board.digital[pin_number].write(HIGH)
-                gevent.sleep(1)
-                board.digital[pin_number].write(LOW)
-                gevent.sleep(1)
+from utils import ArduinoUtil, PortUtil
 
 class Board(pyfirmata.Board):
     """The Base class for any board."""
