@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pyfirmata import *
 from boards import BOARDS
 import gevent
@@ -29,7 +31,7 @@ class Board(pyfirmata.Board):
 
         def led_hook(pin_number):
             led = Led(self, pin_number)
-            self.led = led
+            # self.led = led
             return led
         
         self.name = name
@@ -69,7 +71,7 @@ class Board(pyfirmata.Board):
 
     def at_pin(self, pin_number):
         self.pin = Pin(self, pin_number)
-                
+
 class Pin(pyfirmata.Pin):
     """Pluto's Pin representation"""
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
@@ -104,6 +106,7 @@ class Led(Pin):
     """Led representation"""    
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Led, self).__init__(board, pin_number, type, port)
+        self.blinking = False
 
     def on(self):
         self.board.digitalWrite(self.pin_number, HIGH)
@@ -112,18 +115,21 @@ class Led(Pin):
         self.board.digitalWrite(self.pin_number, LOW)
 
     def blink(self, interval=1, forever=True):
-        if forever:
-            while True:
-                self.board.digitalWrite(self.pin_number, HIGH)
-                gevent.sleep(interval)
-                self.board.digitalWrite(self.pin_number, LOW)
-                gevent.sleep(interval)
-
+        self.blinking == True
+        
+        while forever:
+            self.board.digitalWrite(self.pin_number, HIGH)
+            gevent.sleep(interval)
+            self.board.digitalWrite(self.pin_number, LOW)
+            gevent.sleep(interval)
+            
+    '''
     def strobe(self, interval=1, forever=True):
         if forever:
             while True:
                 pass 
-
+    '''
+    
 class Uno(Board):
     """
     A board that will set itself up as an Arduino Uno
@@ -146,6 +152,18 @@ class Mega(Board):
 
     def __str__(self):
         super(Mega, self).__str__()
+        
+#TODO: Look at Serial conflict for Yun
+'''
+class Yun(Board):
+    """
+    A board that will set itself up as an ArduinoYun
+    """
+    def __init__(self, *args, **kwargs):
+        args = list(args)
+        args.append(BOARDS['arduino_yun'])
+        super(Yun, self).__init__(*args, **kwargs)
+'''
 
 class SparkCore(Board):
     """
@@ -156,14 +174,14 @@ class SparkCore(Board):
         self.util = ArduinoUtil()
         self.led = Led(self)
 
-class Lilypad(Board):
+class LilypadUSB(Board):
     """
     A board that will set itself up as an ArduinoLilypad
     """
     def __init__(self, *args, **kwargs):
         args = list(args)
         args.append(BOARDS['arduino_lilypad'])
-        super(Lilypad, self).__init__(*args, **kwargs)
+        super(LilypadUSB, self).__init__(*args, **kwargs)
         self.name = 'arduino_lilypad'
         self.util = ArduinoUtil()
         self.led = Led(self)
