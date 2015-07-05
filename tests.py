@@ -24,8 +24,11 @@ class BoardInitTest(BoardBaseTest):
         self.assertIsInstance(self.board, pluto.Board)
 
     def test_board_led(self):
-        self.assertEqual(self.board.led.on(), self.board.digital[13].write(1))
-        self.assertEqual(self.board.led.off(), self.board.digital[13].write(0))
+        self.assertEqual(self.board.led(13).on(), self.board.digital[13].write(1))
+        self.assertEqual(self.board.led(13).off(), self.board.digital[13].write(0))
+        self.assertEqual(self.board.led(10).on(), self.board.digital[10].write(1))
+        self.assertEqual(self.board.led(10).off(), self.board.digital[10].write(0))
+        
         # TODO: Test blink method
         # TODO: Test strope method
 
