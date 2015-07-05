@@ -40,5 +40,12 @@ BOARDS = {
         'pwm' : (3, 7, 8, 11, 12, 13),
         'use_ports' : True,
         'disabled' : (0, 1) # Rx, Tx, Crystal
+    },
+    'arduino_lilypad_usb': {
+        'digital' : tuple(x for x in range(9)),
+        'analog' : tuple(x for x in range(4)),
+        'pwm' : (3, 9, 10, 11, 13),
+        'use_ports' : True,
+        'disabled' : (0, 1) # Rx, Tx, Crystal
     }
 }
