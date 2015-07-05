@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from pyfirmata import *
 from boards import BOARDS
-import gevent
+import time
 
 __version__ = '0.1.0'
 
@@ -33,11 +33,15 @@ class Board(pyfirmata.Board):
             led = Led(self, pin_number)
             # self.led = led
             return led
+
+        def pin_hook(pin_number):
+            pin = Pin(self, pin_number)
+            return pin
         
         self.name = name
-        self.util = ArduinoUtil()                
-        self.led = Led(self) if self.name in default_leds else (lambda pin: led_hook(pin))
-        self.pin = Pin(self)
+        self.util = ArduinoUtil()
+        self.pin = (lambda pin_number: pin_hook(pin_number))
+        self.led = Led(self) if self.name in default_leds else (lambda pin_number: led_hook(pin_number))
         auto_port = PortUtil.scan()
         self.sp = serial.Serial(auto_port, baudrate, timeout=timeout)
         # Allow 5 secs for Arduino's auto-reset to happen
@@ -72,6 +76,9 @@ class Board(pyfirmata.Board):
     def at_pin(self, pin_number):
         self.pin = Pin(self, pin_number)
 
+    def destroy(self):
+        super(Board, self).exit()
+
 class Pin(pyfirmata.Pin):
     """Pluto's Pin representation"""
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
@@ -101,6 +108,13 @@ class Pin(pyfirmata.Pin):
 
     def low(self):
         self.digitalWrite(pin_number=self.pin_number, value=LOW)
+
+    def alternate(self, interval=1, forever=True):
+        while forever:
+            self.digitalWrite(pin_number=self.pin_number, value=HIGH)
+            time.sleep(interval)
+            self.digitalWrite(pin_number=self.pin_number, value=LOW)
+            time.sleep(interval)
                 
 class Led(Pin):
     """Led representation"""    
@@ -115,21 +129,9 @@ class Led(Pin):
         self.board.digitalWrite(self.pin_number, LOW)
 
     def blink(self, interval=1, forever=True):
-        self.blinking == True
+        super(Led, self).alternate(interval, forever)
+        self.blinking = True
         
-        while forever:
-            self.board.digitalWrite(self.pin_number, HIGH)
-            gevent.sleep(interval)
-            self.board.digitalWrite(self.pin_number, LOW)
-            gevent.sleep(interval)
-            
-    '''
-    def strobe(self, interval=1, forever=True):
-        if forever:
-            while True:
-                pass 
-    '''
-    
 class Uno(Board):
     """
     A board that will set itself up as an Arduino Uno
@@ -176,13 +178,13 @@ class SparkCore(Board):
 
 class LilypadUSB(Board):
     """
-    A board that will set itself up as an ArduinoLilypad
+    A board that will set itself up as an ArduinoLilypadUSB
     """
     def __init__(self, *args, **kwargs):
         args = list(args)
-        args.append(BOARDS['arduino_lilypad'])
+        args.append(BOARDS['arduino_lilypad_usb'])
         super(LilypadUSB, self).__init__(*args, **kwargs)
-        self.name = 'arduino_lilypad'
+        self.name = 'arduino_lilypad_usb'
         self.util = ArduinoUtil()
         self.led = Led(self)
 
