@@ -1,6 +1,8 @@
 import pluto
 import re
 import serial.tools.list_ports
+import time
+from pyfirmata import PWM
 
 class ArduinoUtil(object):
     """                                                                         
@@ -9,19 +11,32 @@ class ArduinoUtil(object):
     @staticmethod
     def digitalWrite(board, pin_number, value):
         if isinstance(board, pluto.Board):
+            if board.digital[pin_number].mode != 0:
+                board.digital[pin_number]._set_mode(OUTPUT)
+            else:
+                pass
             board.digital[pin_number].write(value)
             
     @staticmethod
     def digitalRead(board, pin_number, value):
         if isinstance(board, pluto.Board):
             board.digital[pin_number].read()
+
+    @staticmethod
+    def analogWrite(board, pin_number, value):
+        if isinstance(board, pluto.Board) and board.digital[pin_number].PWM_CAPABLE:
+            if board.digital[pin_number].mode != 3:
+                board.digital[pin_number]._set_mode(PWM)
+            else:
+                pass
+            board.digital[pin_number].write(value)
         
     @staticmethod
     def blinkLED(board, pin_number=pluto.LED_BUILTIN, interval=1):
         if isinstance(board, Board):
             while True:
                 board.digital[pin_number].write(HIGH)
-                gevent.sleep(1)
+                time.sleep(1)
 
 class PortUtil(object):
     """Helper class that scan serial port automatically"""

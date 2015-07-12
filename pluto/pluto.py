@@ -70,6 +70,9 @@ class Board(pyfirmata.Board):
     def digitalRead(self):
         self.util.digitalRead(self)
 
+    def analogWrite(self, pin_number, value):
+        self.util.analogWrite(self, pin_number, value)
+
     def blinkLED(self, pin_number=13, interval=1):
         self.util.blinkLED(self)
 
@@ -103,6 +106,24 @@ class Pin(pyfirmata.Pin):
 
         self.util.digitalWrite(self.board, self.pin_number, self.value)
 
+    def analogWrite(self, *args, **kwargs):
+        for index, val in enumerate(args):
+            if index == 0:
+                self.pin_number = val
+            elif index == 1:
+                self.value = val
+
+        if kwargs is not None:
+            for key, val in kwargs.iteritems():
+                if key == "pin_number":
+                    self.pin_number = val
+                elif key == "value":
+                    self.value = val
+                else:
+                    pass
+
+        self.util.analogWrite(self.board, self.pin_number, self.value)
+
     def high(self):
         self.digitalWrite(pin_number=self.pin_number, value=HIGH)
 
@@ -115,6 +136,16 @@ class Pin(pyfirmata.Pin):
             time.sleep(interval)
             self.digitalWrite(pin_number=self.pin_number, value=LOW)
             time.sleep(interval)
+
+    def pulse(self, step=1, forever=True):
+        val = 0
+        while forever:
+            if val <= 10000:
+                val = val + step
+            else:
+                val = val - step
+                
+            self.analogWrite(pin_number=self.pin_number, value=val/10000)
                 
 class Led(Pin):
     """Led representation"""    
@@ -131,7 +162,11 @@ class Led(Pin):
     def blink(self, interval=1, forever=True):
         super(Led, self).alternate(interval, forever)
         self.blinking = True
-        
+
+    def strobe(self, step=1, forever=True):
+        super(Led, self).pulse(step, forever)
+        self.strobing = True
+
 class Uno(Board):
     """
     A board that will set itself up as an Arduino Uno
@@ -173,8 +208,6 @@ class SparkCore(Board):
     """
     def __init__(self, *args, **kwargs):
         super(SparkCore, self).__init__(*args, **kwargs)
-        self.util = ArduinoUtil()
-        self.led = Led(self)
 
 class LilypadUSB(Board):
     """
@@ -185,8 +218,6 @@ class LilypadUSB(Board):
         args.append(BOARDS['arduino_lilypad_usb'])
         super(LilypadUSB, self).__init__(*args, **kwargs)
         self.name = 'arduino_lilypad_usb'
-        self.util = ArduinoUtil()
-        self.led = Led(self)
 
         
         
