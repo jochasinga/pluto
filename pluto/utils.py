@@ -2,7 +2,7 @@ import pluto
 import re
 import serial.tools.list_ports
 import time
-from pyfirmata import PWM
+from pyfirmata import PWM, OUTPUT
 
 class ArduinoUtil(object):
     """                                                                         

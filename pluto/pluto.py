@@ -17,7 +17,7 @@ class Board(pyfirmata.Board):
     """The Base class for any board."""
     # TODO: auto-scan for type of board
     def __init__(self, port=None, layout=BOARDS['arduino'], baudrate=57600, name=None, timeout=None):
-        # Arduino boards with on-board digital LED @ pin 13
+        """
         default_leds = [
             'arduino',
             'arduino_leonardo',
@@ -28,20 +28,29 @@ class Board(pyfirmata.Board):
             'arduino_micro',
             'arduino_lilypad_usb',
         ]
+        """
+        # Arduino boards with on-board digital LED @ pin 13
+        default_leds = [
+            'Uno',
+            'LilypadUSB',
+        ]
 
         def led_hook(pin_number):
             led = Led(self, pin_number)
-            # self.led = led
+            self.led = led
             return led
 
         def pin_hook(pin_number):
             pin = Pin(self, pin_number)
+            self.pin = pin
             return pin
         
         self.name = name
         self.util = ArduinoUtil()
         self.pin = (lambda pin_number: pin_hook(pin_number))
-        self.led = Led(self) if self.name in default_leds else (lambda pin_number: led_hook(pin_number))
+        #self.led = Led(self) if self.name in default_leds else (lambda pin_number: led_hook(pin_number))
+        # Use class's name instead of name attribute
+        self.led = Led(self) if self.__class__.__name__ in default_leds else (lambda pin_number: led_hook(pin_number))
         auto_port = PortUtil.scan()
         self.sp = serial.Serial(auto_port, baudrate, timeout=timeout)
         # Allow 5 secs for Arduino's auto-reset to happen
@@ -83,10 +92,13 @@ class Board(pyfirmata.Board):
         super(Board, self).exit()
 
 class Pin(pyfirmata.Pin):
-    """Pluto's Pin representation"""
+    """Pluto's Pin representation"""    
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Pin, self).__init__(board, pin_number, type, port)
         self.util = ArduinoUtil()
+
+    def __call__(self, pin_number):
+        return Pin(self.board, pin_number)
         
     def digitalWrite(self, *args, **kwargs):
         for index, val in enumerate(args):
@@ -148,10 +160,13 @@ class Pin(pyfirmata.Pin):
             self.analogWrite(pin_number=self.pin_number, value=val/10000)
                 
 class Led(Pin):
-    """Led representation"""    
+    """Led representation"""
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Led, self).__init__(board, pin_number, type, port)
         self.blinking = False
+
+    def __call__(self, pin_number):
+        return Led(self.board, pin_number)
 
     def on(self):
         self.board.digitalWrite(self.pin_number, HIGH)
@@ -218,6 +233,7 @@ class LilypadUSB(Board):
         args.append(BOARDS['arduino_lilypad_usb'])
         super(LilypadUSB, self).__init__(*args, **kwargs)
         self.name = 'arduino_lilypad_usb'
+
 
         
         
