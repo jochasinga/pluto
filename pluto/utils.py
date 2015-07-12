@@ -1,7 +1,6 @@
 import pluto
 import re
 import serial.tools.list_ports
-import gevent
 
 class ArduinoUtil(object):
     """                                                                         
