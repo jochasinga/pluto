@@ -1,12 +1,14 @@
 '''
-LED
-Turns on and off an on-board LED 
+Blink
+Turns on an on-board LED on for one second, and then off.
 
-Pluto has collect some number of Arduino boards with on-board LED attached to pin 13. For these boards, Pluto can recognize automatically through the use of the board's class. If unsure, consult the doc at http://arduino.cc and use general Board class, then supply the pin number as the argument to led callable.
+Most Arduinos have an on-board LED you can control. On the Uno and Leonardo,
+it is attached to digital pin 13. If you're unsure what pin the on-board LED
+is connected to on your Arduino model, check the doc at http://arduino.cc
 
 This example code is in the public domain.
 
-modified June 22, 2015
+modified July 12, 2015
 by Joe Chasinga
 '''
 
@@ -19,10 +21,12 @@ from pluto import *
 import time
 
 def main():
+    # Invoke a general board
     board = Board()
     board.led(13).on()
-    time.sleep(5)
-    board.led(13).off()
+    time.sleep(1)
+    # the board remembers the on-board led
+    board.led.off()
 
 if __name__ == '__main__':
     main()
