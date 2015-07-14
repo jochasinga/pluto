@@ -12,6 +12,7 @@ by Joe Chasinga
 
 #!/usr/bin/env python
 
+from __future__ import division
 import sys, os, math
 sys.path.append('../pluto')
 

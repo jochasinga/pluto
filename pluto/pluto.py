@@ -30,7 +30,8 @@ class Board(pyfirmata.Board):
         ]
         """
         # Arduino boards with on-board digital LED @ pin 13
-        default_leds = [
+        # TODO: Move callable hooks to children Board classes to avoid using class's name
+        self.DEFAULT_LEDS = [
             'Uno',
             'LilypadUSB',
         ]
@@ -50,7 +51,7 @@ class Board(pyfirmata.Board):
         self.pin = (lambda pin_number: pin_hook(pin_number))
         #self.led = Led(self) if self.name in default_leds else (lambda pin_number: led_hook(pin_number))
         # Use class's name instead of name attribute
-        self.led = Led(self) if self.__class__.__name__ in default_leds else (lambda pin_number: led_hook(pin_number))
+        self.led = Led(self) if self.__class__.__name__ in self.DEFAULT_LEDS else (lambda pin_number: led_hook(pin_number))
         auto_port = PortUtil.scan()
         self.sp = serial.Serial(auto_port, baudrate, timeout=timeout)
         # Allow 5 secs for Arduino's auto-reset to happen
@@ -76,17 +77,17 @@ class Board(pyfirmata.Board):
     def digitalWrite(self, pin_number, value):
         self.util.digitalWrite(self, pin_number, value)
 
-    def digitalRead(self):
-        self.util.digitalRead(self)
+    def digitalRead(self, pin_number):
+        self.util.digitalRead(self, pin_number)
 
     def analogWrite(self, pin_number, value):
         self.util.analogWrite(self, pin_number, value)
 
-    def blinkLED(self, pin_number=13, interval=1):
-        self.util.blinkLED(self)
-
-    def at_pin(self, pin_number):
-        self.pin = Pin(self, pin_number)
+    def blinkLed(self, pin_number=None, interval=1):
+        if self.led.__class__.__name__ == 'Led':
+            self.util.blinkLed(self, pin_number=self.led.pin_number)
+        else:
+            print("Nooooo")
 
     def destroy(self):
         super(Board, self).exit()
@@ -95,6 +96,7 @@ class Pin(pyfirmata.Pin):
     """Pluto's Pin representation"""    
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Pin, self).__init__(board, pin_number, type, port)
+        self.pin_number = pin_number
         self.util = ArduinoUtil()
 
     def __call__(self, pin_number):
