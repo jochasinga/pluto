@@ -2,5 +2,6 @@ pyserial
 pyFirmata
 unittest2
 mock
+future
 
 
