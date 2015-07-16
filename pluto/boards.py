@@ -1,3 +1,4 @@
+from builtins import range
 BOARDS = {
     'arduino' : {
         'digital' : tuple(x for x in range(14)),

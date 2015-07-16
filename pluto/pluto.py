@@ -1,4 +1,6 @@
 from __future__ import print_function
+from __future__ import division
+from past.utils import old_div
 
 from pyfirmata import *
 from boards import BOARDS
@@ -110,7 +112,7 @@ class Pin(pyfirmata.Pin):
                 self.value = val
 
         if kwargs is not None:
-            for key, val in kwargs.iteritems():
+            for key, val in kwargs.items():
                 if key == "pin_number":
                     self.pin_number = val
                 elif key == "value":
@@ -128,7 +130,7 @@ class Pin(pyfirmata.Pin):
                 self.value = val
 
         if kwargs is not None:
-            for key, val in kwargs.iteritems():
+            for key, val in kwargs.items():
                 if key == "pin_number":
                     self.pin_number = val
                 elif key == "value":
@@ -159,7 +161,7 @@ class Pin(pyfirmata.Pin):
             else:
                 val = val - step
                 
-            self.analogWrite(pin_number=self.pin_number, value=val/10000)
+            self.analogWrite(pin_number=self.pin_number, value=old_div(val,10000))
                 
 class Led(Pin):
     """Led representation"""
