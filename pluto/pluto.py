@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import division
-from past.utils import old_div
 
 from pyfirmata import *
 from boards import BOARDS
@@ -47,7 +46,7 @@ class Board(pyfirmata.Board):
             pin = Pin(self, pin_number)
             self.pin = pin
             return pin
-        
+
         self.name = name
         self.util = ArduinoUtil()
         self.pin = (lambda pin_number: pin_hook(pin_number))
@@ -95,7 +94,7 @@ class Board(pyfirmata.Board):
         super(Board, self).exit()
 
 class Pin(pyfirmata.Pin):
-    """Pluto's Pin representation"""    
+    """Pluto's Pin representation"""
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
         super(Pin, self).__init__(board, pin_number, type, port)
         self.pin_number = pin_number
@@ -103,7 +102,7 @@ class Pin(pyfirmata.Pin):
 
     def __call__(self, pin_number):
         return Pin(self.board, pin_number)
-        
+
     def digitalWrite(self, *args, **kwargs):
         for index, val in enumerate(args):
             if index == 0:
@@ -160,9 +159,9 @@ class Pin(pyfirmata.Pin):
                 val = val + step
             else:
                 val = val - step
-                
-            self.analogWrite(pin_number=self.pin_number, value=old_div(val,10000))
-                
+
+            self.analogWrite(pin_number=self.pin_number, value=val/10000)
+
 class Led(Pin):
     """Led representation"""
     def __init__(self, board, pin_number=LED_BUILTIN, type=ANALOG, port=None):
@@ -174,7 +173,7 @@ class Led(Pin):
 
     def on(self):
         self.board.digitalWrite(self.pin_number, HIGH)
-    
+
     def off(self):
         self.board.digitalWrite(self.pin_number, LOW)
 
@@ -208,7 +207,7 @@ class Mega(Board):
 
     def __str__(self):
         super(Mega, self).__str__()
-        
+
 #TODO: Look at Serial conflict for Yun
 '''
 class Yun(Board):
@@ -237,13 +236,3 @@ class LilypadUSB(Board):
         args.append(BOARDS['arduino_lilypad_usb'])
         super(LilypadUSB, self).__init__(*args, **kwargs)
         self.name = 'arduino_lilypad_usb'
-
-
-        
-        
-        
-
-    
-    
-
-    

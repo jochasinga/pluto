@@ -7,8 +7,8 @@ from pyfirmata import PWM, OUTPUT
 from pluto import LOW, HIGH, LED_BUILTIN
 
 class ArduinoUtil(object):
-    """                                                                         
-    A utility class containing all the Arduino-esque functions                  
+    """
+    A utility class containing all the Arduino-esque functions
     """
     @staticmethod
     def digitalWrite(board, pin_number, value):
@@ -18,7 +18,7 @@ class ArduinoUtil(object):
             else:
                 pass
             board.digital[pin_number].write(value)
-            
+
     @staticmethod
     def digitalRead(board, pin_number):
         if isinstance(board, pluto.Board):
@@ -32,7 +32,7 @@ class ArduinoUtil(object):
             else:
                 pass
             board.digital[pin_number].write(value)
-        
+
     @staticmethod
     def blinkLed(board, pin_number=LED_BUILTIN, interval=1):
         if isinstance(board, pluto.Board):
@@ -53,7 +53,7 @@ class PortUtil(object):
     @classmethod
     def count_ports(cls):
         return cls.num_ports
-    
+
     @classmethod
     def scan(cls, *args, **kwargs):
         if len(args) == 0:
@@ -61,7 +61,7 @@ class PortUtil(object):
         else:
             for index, val in enumerate(args):
                 cls.keywords.append(val)
-                
+
         for keyword in cls.keywords:
             p = re.compile('(/dev/)((tty)|(cu)|.*).({0})\w*[\d]'.format(keyword))
             cls.patterns.append(p)
@@ -75,6 +75,3 @@ class PortUtil(object):
                     pass
 
         return cls.auto_port
-
-
-    
