@@ -84,6 +84,9 @@ class Board(pyfirmata.Board):
     def analogWrite(self, pin_number, value):
         self.util.analogWrite(self, pin_number, value)
 
+    def analogRead(self, pin_number):
+        self.util.analogRead(self, pin_number)
+
     def blinkLed(self, pin_number=None, interval=1):
         if self.led.__class__.__name__ == 'Led':
             self.util.blinkLed(self, pin_number=self.led.pin_number)

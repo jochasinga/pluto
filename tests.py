@@ -15,7 +15,7 @@ from boards import BOARDS
 from utils import ArduinoUtil, PortUtil
 
 class BoardBaseTest(unittest.TestCase):
-    """Base Class for generic boards"""    
+    """Base Class for generic boards"""
     def setUp(self):
         pluto.serial.Serial = mockup.MockupSerial
         pluto.BOARD_SETUP_WAIT_TIME = 0
@@ -54,7 +54,7 @@ class BoardInitTest(BoardBaseTest):
         self.board.led(13).on()
         self.assertIs(self.board.led.off(), self.board.digital[13].write(0))
         self.assertIs(self.board.led.on(), self.board.digital[13].write(1))
-        
+
     def test_board_can_control_onboard_led(self):
         self.assertIs(self.board.led(13).on(), self.board.digital[13].write(1))
         self.assertIs(self.board.led(13).off(), self.board.digital[13].write(0))
@@ -100,22 +100,25 @@ class ArduinoUtilityTest(BoardBaseTest):
     def test_analog_write(self):
         self.assertIs(self.board.analogWrite(9, 0.5), self.board.digital[9].write(0.5))
 
+    def test_analog_read(self):
+        self.assertIs(self.board.analogRead(3), self.board.analog[3].read())
+
 class PinTest(unittest.TestCase):
     """Test for pins"""
     def setUp(self):
         self.board = pluto.Board()
         self.pin = pluto.Pin(self.board, 13)
-        
+
     def test_pin_initiated(self):
         self.assertIsInstance(self.pin, pluto.Pin)
 
     def test_write_pin(self):
         self.assertIs(self.pin.high(), self.board.digital[13].write(1))
         self.assertIs(self.pin.low(), self.board.digital[13].write(0))
-    
+
     def test_read_pin(self):
         pass
-    
+
 class TestBoardMessages(BoardBaseTest):
     def test_assert_serial(self, *incoming_bytes):
         serial_msg = bytearray()
@@ -124,6 +127,6 @@ class TestBoardMessages(BoardBaseTest):
             serial_msg += res
             res = self.board.sp.read()
         self.assertEqual(bytearray(incoming_bytes), serial_msg)
-        
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

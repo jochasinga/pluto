@@ -5,6 +5,7 @@ import serial.tools.list_ports
 import time
 from pyfirmata import PWM, OUTPUT
 from pluto import LOW, HIGH, LED_BUILTIN
+import exceptions
 
 class ArduinoUtil(object):
     """
@@ -18,20 +19,36 @@ class ArduinoUtil(object):
             else:
                 pass
             board.digital[pin_number].write(value)
+        else:
+            raise TypeError("The object isn't an instance of 'pluto.Board'")
 
     @staticmethod
     def digitalRead(board, pin_number):
         if isinstance(board, pluto.Board):
             board.digital[pin_number].read()
+        else:
+            raise TypeError("The object isn't an instance of 'pluto.Board'.")
 
     @staticmethod
     def analogWrite(board, pin_number, value):
-        if isinstance(board, pluto.Board) and board.digital[pin_number].PWM_CAPABLE:
-            if board.digital[pin_number].mode != 3:
-                board.digital[pin_number]._set_mode(PWM)
+        if isinstance(board, pluto.Board):
+            if board.digital[pin_number].PWM_CAPABLE:
+                if board.digital[pin_number].mode != 3:
+                    board.digital[pin_number]._set_mode(PWM)
+                else:
+                    pass
+                board.digital[pin_number].write(value)
             else:
-                pass
-            board.digital[pin_number].write(value)
+                raise exceptions.PinError("This pin is not PWM capable.")
+        else:
+            raise TypeError("The object isn't an instance of 'pluto.Board'.")
+
+    @staticmethod
+    def analogRead(board, pin_number):
+        if isinstance(board, pluto.Board):
+            board.analog[pin_number].read()
+        else:
+            raise TypeError("The object isn't an instance of 'pluto.Board'.")
 
     @staticmethod
     def blinkLed(board, pin_number=LED_BUILTIN, interval=1):
@@ -41,6 +58,8 @@ class ArduinoUtil(object):
                 time.sleep(interval)
                 board.digital[pin_number].write(LOW)
                 time.sleep(interval)
+        else:
+            raise TypeError("The object isn't an instance of 'pluto.Board'.")
 
 class PortUtil(object):
     """Helper class that scan serial port automatically"""
