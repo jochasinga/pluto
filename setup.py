@@ -14,7 +14,13 @@ setup(
     author_email='jo.chasinga@gmail.com',
     packages=['pluto'],
     include_package_data=True,
-    install_requires=['pyserial', 'pyfirmata'],
+    install_requires=[
+        'pyserial',
+        'pyfirmata',
+        'unittest2',
+        'future',
+        'mock',
+    ],
     zip_safe=False,
     url='https://github.com/jochasinga/pluto',
     download_url = 'https://github.com/jochasinga/pluto/tarball/0.1.0',
@@ -32,4 +38,4 @@ setup(
         'Topic :: Home Automation',
     ],
 )
-    
+
