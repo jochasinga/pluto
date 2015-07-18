@@ -11,6 +11,8 @@ __version__ = '0.1.0'
 LOW = 0
 HIGH = 1
 LED_BUILTIN = 13
+DIGITAL = 0
+ANALOG = 1
 
 from utils import ArduinoUtil, PortUtil
 
@@ -61,13 +63,20 @@ class Board(pyfirmata.Board):
         # TODO Find a more reliable way to wait until the board is ready
         self.pass_time(BOARD_SETUP_WAIT_TIME)
         self._layout = layout
+        self._iterator = False
+        self.it = util.Iterator(self)
         if not self.name:
             self.name = port
+        else:
+            pass
 
         if layout:
             self.setup_layout(layout)
         else:
             self.auto_setup()
+
+        if self._iterator:
+            self.it.start()
 
         # Iterate over the first messages to get firmware data
         while self.bytes_available():
@@ -86,12 +95,6 @@ class Board(pyfirmata.Board):
 
     def analogRead(self, pin_number):
         self.util.analogRead(self, pin_number)
-
-    def blinkLed(self, pin_number=None, interval=1):
-        if self.led.__class__.__name__ == 'Led':
-            self.util.blinkLed(self, pin_number=self.led.pin_number)
-        else:
-            print("Nooooo")
 
     def destroy(self):
         super(Board, self).exit()
@@ -123,6 +126,24 @@ class Pin(pyfirmata.Pin):
                     pass
 
         self.util.digitalWrite(self.board, self.pin_number, self.value)
+
+    def digitalRead(self, *args, **kwargs):
+        for index, val in enumerate(args):
+            if index == 0:
+                self.pin_number = val
+            elif index == 1:
+                self.value = val
+
+        if kwargs is not None:
+            for key, val in kwargs.items():
+                if key == "pin_number":
+                    self.pin_number = val
+                elif key == "value":
+                    self.value = val
+                else:
+                    pass
+
+        self.util.digitalRead(self.board, self.pin_number)
 
     def analogWrite(self, *args, **kwargs):
         for index, val in enumerate(args):
@@ -164,6 +185,17 @@ class Pin(pyfirmata.Pin):
                 val = val - step
 
             self.analogWrite(pin_number=self.pin_number, value=val/10000)
+
+    def read(self, mode=DIGITAL):
+        if self._iterator:
+            pass
+        else:
+            self._iterator = True
+        if mode == DIGITAL:
+            self.board.digitalRead(self.pin_number)
+        elif mode == ANALOG:
+            # TODO: Implement analog read
+            pass
 
 class Led(Pin):
     """Led representation"""

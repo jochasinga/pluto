@@ -117,6 +117,7 @@ class PinTest(unittest.TestCase):
         self.assertIs(self.pin.low(), self.board.digital[13].write(0))
 
     def test_read_pin(self):
+        # TODO: Write test for reading analog and digital pins
         pass
 
 class TestBoardMessages(BoardBaseTest):

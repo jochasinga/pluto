@@ -94,6 +94,11 @@ In Pluto, `Led` inherits from `Pin`, therefore you can do more basic things like
     >>> pin.low()
     >>> pin.pulse()           # Use PWM just like Led's strobe.
 
+To read the pin value:
+
+    >>> pin.read()            # Default to digitalRead
+    >>> pin.read(mode=ANALOG) # Switch to analogRead (If it's an analog pin)
+
 Just like `Led` you can control pins as the board's attribute.
 
     >>> board = Board()

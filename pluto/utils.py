@@ -3,7 +3,7 @@ import pluto
 import re
 import serial.tools.list_ports
 import time
-from pyfirmata import PWM, OUTPUT
+from pyfirmata import util, OUTPUT, INPUT, PWM
 from pluto import LOW, HIGH, LED_BUILTIN
 import exceptions
 
@@ -14,8 +14,8 @@ class ArduinoUtil(object):
     @staticmethod
     def digitalWrite(board, pin_number, value):
         if isinstance(board, pluto.Board):
-            if board.digital[pin_number].mode != 0:
-                board.digital[pin_number]._set_mode(OUTPUT)
+            if board.digital[pin_number].mode != OUTPUT:
+                board.digital[pin_number].mode = OUTPUT
             else:
                 pass
             board.digital[pin_number].write(value)
@@ -25,6 +25,10 @@ class ArduinoUtil(object):
     @staticmethod
     def digitalRead(board, pin_number):
         if isinstance(board, pluto.Board):
+            if board.digital[pin_number].mode != INPUT:
+                board.digital[pin_number].mode = INPUT
+            else:
+                pass
             board.digital[pin_number].read()
         else:
             raise TypeError("The object isn't an instance of 'pluto.Board'.")
@@ -47,17 +51,6 @@ class ArduinoUtil(object):
     def analogRead(board, pin_number):
         if isinstance(board, pluto.Board):
             board.analog[pin_number].read()
-        else:
-            raise TypeError("The object isn't an instance of 'pluto.Board'.")
-
-    @staticmethod
-    def blinkLed(board, pin_number=LED_BUILTIN, interval=1):
-        if isinstance(board, pluto.Board):
-            while True:
-                board.digital[pin_number].write(HIGH)
-                time.sleep(interval)
-                board.digital[pin_number].write(LOW)
-                time.sleep(interval)
         else:
             raise TypeError("The object isn't an instance of 'pluto.Board'.")
 
